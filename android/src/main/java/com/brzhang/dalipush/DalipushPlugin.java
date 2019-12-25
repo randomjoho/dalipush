@@ -53,16 +53,33 @@ public class DalipushPlugin implements MethodCallHandler, EventChannel.StreamHan
     }
 
     @Override
-    public void onMethodCall(MethodCall call, Result result) {
+    public void onMethodCall(MethodCall call, final Result result) {
         if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE + "packageName" + BuildConfig.APPLICATION_ID);
         } else if (call.method.equals("getDeviceId")) {
             final CloudPushService pushService = PushServiceFactory.getCloudPushService();
             result.success(pushService.getDeviceId());
-        } else if (call.method.equals("getDeviceToken")) {
+        }  else if (call.method.equals("getDeviceToken")) {
             // Android 下没有deviceToken
             result.success("null");
-        } else {
+        }else if (call.method.equals("setAlias")) {
+            CloudPushService pushService = PushServiceFactory.getCloudPushService();
+            // Android 下没有deviceToken
+            pushService.addAlias(call.argument("alias").toString(), new CommonCallback() {
+                @Override
+                public void onSuccess(String s) {
+                    result.success(true);
+                }
+
+                @Override
+                public void onFailed(String s, String s1) {
+                    result.success(false);
+                }
+            });
+
+        }
+
+        else {
             result.notImplemented();
         }
     }
